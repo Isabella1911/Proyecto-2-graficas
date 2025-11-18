@@ -1,0 +1,7 @@
+[package]
+name = "Proyecto-2-graficas"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# Sin crates externos: solo std
