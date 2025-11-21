@@ -1,11 +1,11 @@
 use std::fs;
 use std::path::Path;
 
-use crate::app::camera::{CameraPose, CameraOrbit};
+use crate::app::camera::CameraOrbit;
 use crate::core::image::Image;
 use crate::core::vec3::Vec3;
 use crate::render::renderer::Renderer;
-use crate::scene::Scene;
+use crate::scene::builder::build_minecraft_house_scene;
 
 mod app;
 mod core;
@@ -13,81 +13,55 @@ mod render;
 mod scene;
 
 fn main() {
-    // ====== MODO RÁPIDO PERO CON MÁS FRAMES ======
-    let w = 640usize;       // antes: 960
-    let h = 360usize;       // antes: 540
-    let frames = 100usize;  // << aumentado (antes: 5 / 120)
-    let fps = 30usize;      // un poco más fluido
-    let spp = 1usize;       // mantener 1 para velocidad
-    let outdir = "docs/demo/frames";
+    // Resolución y samples
+    let width: usize = 960;
+    let height: usize = 540;
+    let spp: usize = 16;
 
-    println!("Config (FAST+LONG):");
-    println!("  res:      {}x{}", w, h);
-    println!("  frames:   {}", frames);
-    println!("  fps:      {}", fps);
-    println!("  spp:      {}", spp);
-    println!("  outdir:   {}", outdir);
+    // Config de animación
+    let fps: f64 = 30.0;
+    let seconds: f64 = 10.0;          // duración del timelapse
+    let nframes: u32 = (fps * seconds) as u32;
 
-    fs::create_dir_all(outdir).ok();
-
-    // === Cámara (órbita alrededor del centro de la casa) ===
-    let center = Vec3::new(5.0, 3.0, 5.0);
-    let mut orbit = CameraOrbit::new(center);
-    orbit.base_radius = 18.0;
-    orbit.zoom_amp = 0.0;
-    orbit.height = 7.0;
-
-    // === Escena: CASA VOXEL + (OBJ opcional) ===
-    let mut scene: Scene = crate::scene::build_minecraft_house_scene();
-
-    // OBJ opcional: solo si existe el archivo (no bloquea en modo rápido)
-    let obj_path = "assets/models/bunny.obj";
-    if Path::new(obj_path).exists() {
-        println!("OBJ encontrado, se carga: {}", obj_path);
-        let stone_mat_id = 2usize;
-        let tris = crate::scene::mesh::load_obj_triangles(
-            obj_path,
-            stone_mat_id,
-            0.5,
-            Vec3::new(10.0, 1.0, 10.0),
-        );
-        scene.triangles.extend(tris);
-    } else {
-        println!("OBJ no encontrado (se omite): {}", obj_path);
+    // Carpeta de salida
+    let outdir = "docs/demo/frames_long";
+    if !Path::new(outdir).exists() {
+        fs::create_dir_all(outdir).expect("no se pudo crear carpeta de salida");
     }
 
-    // === Renderer ===
-    let mut renderer = Renderer::new(w, h, spp);
+    // Renderer
+    let mut renderer = Renderer::new(width, height, spp);
+    renderer.set_use_procedural_sky(true); // usar DayNight (cielo procedural)
+
+    // Escena
+    let scene = build_minecraft_house_scene();
     renderer.set_scene(&scene);
 
-    // === Render loop ===
-    let mut img = Image::new(w, h);
+    // ====== CÁMARA ORBITAL ======
+    // Orbitando alrededor del centro de la casa (~8,3,8)
+    let orbit = CameraOrbit::new(Vec3::new(8.0, 3.0, 8.0));
 
-    for f in 0..frames {
-        // Tiempo base (segundos) para cámara
-        let t = (f as f64) / (fps as f64);
+    let mut img = Image::new(width, height);
 
-        // Órbita algo más rápida para que recorra bien en 240 frames
-        let orbit_time = t * 1.5;
-        let pose: CameraPose = orbit.pose_at(orbit_time);
-        renderer.set_camera(&pose);
+    for f in 0..nframes {
+        // Tiempo en segundos desde el inicio
+        let t = f as f64 / fps;
 
-        // Ciclo día/noche progresivo: recorre ~2 días en toda la secuencia
-        // (day_time en horas solares: 0..24)
-        let day_progress = (f as f64) / (frames as f64); // 0..1
-        let day_time = (day_progress * 48.0) % 24.0;     // 0..24 (dos ciclos)
+        
+        let day_time = t * 12.0; 
 
+        // Cámara para este instante (usa t normal para que la órbita vaya suave)
+        let cam_pose = orbit.pose_at(t);
+        renderer.set_camera(&cam_pose);
+
+        // Render
         renderer.render_frame(&mut img, day_time);
 
-        // Guarda cada frame
+        // Guardar frame
         let path = format!("{}/frame_{:04}.bmp", outdir, f);
         img.save_bmp(&path);
         println!("Saved {}", path);
     }
 
-    println!("\nListo (FAST+LONG). Para video preview:");
-    println!(
-        "ffmpeg -framerate {} -i {}/frame_%04d.bmp -pix_fmt yuv420p docs/demo/diorama_long.mp4",
-        fps, outdir
-    );
+    println!("\nListo. Generados {} frames en {}", nframes, outdir);
 }

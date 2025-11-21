@@ -1,0 +1,45 @@
+# === Rust / Cargo ===
+/target/
+/**/*.rs.bk
+Cargo.lock
+
+# Archivos temporales de compilación
+.rustc_info.json
+CACHEDIR.TAG
+
+# === Carpetas que NO quieres subir ===
+# (solo los demos y frames de documentación)
+docs/demo/
+docs/demo/**
+
+# Si generas frames o capturas fuera de esa carpeta, puedes agregarlos:
+# *.bmp
+# *.png
+
+# === IDE / Editor ===
+# VSCode
+.vscode/
+.history/
+
+# JetBrains / IntelliJ / CLion
+.idea/
+*.iml
+
+# === Sistema operativo ===
+# Windows
+Thumbs.db
+Desktop.ini
+
+# macOS (por si acaso)
+.DS_Store
+
+# === Binarios y otros temporales ===
+*.exe
+*.dll
+*.pdb
+*.log
+
+# Archivos de backup
+*~
+*.tmp
+*.swp
