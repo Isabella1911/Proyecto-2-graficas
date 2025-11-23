@@ -13,8 +13,8 @@ mod scene;
 mod framebuffer;
 
 fn main() {
-    let width: usize = 960;
-    let height: usize = 540;
+    let width: usize = 800;
+    let height: usize = 440;
     let spp: usize = 4;
 
     let (mut rl, thread) = raylib::init()

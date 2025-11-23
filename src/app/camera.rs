@@ -35,9 +35,9 @@ impl CameraController {
         height_down: bool,
         dt: f64,
     ) {
-        let rot_speed = 1.5;
-        let zoom_speed = 10.0;
-        let height_speed = 10.0;
+        let rot_speed = 20.0;
+        let zoom_speed = 20.0;
+        let height_speed = 20.0;
 
         if left {
             self.yaw -= rot_speed * dt;
