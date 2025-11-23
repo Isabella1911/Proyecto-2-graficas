@@ -110,17 +110,26 @@ impl Renderer {
             let sun_dir = self.daynight.sun_direction(time);
             let sun_col = self.daynight.sun_color(time);
             let sun_int = self.daynight.sun_intensity(time);
+            let light_col = sun_col * sun_int;
 
             let ndotl = hit.n.dot(sun_dir).max(0.0);
             let diffuse = Vec3::new(
-                albedo.x * ndotl * sun_int * sun_col.x,
-                albedo.y * ndotl * sun_int * sun_col.y,
-                albedo.z * ndotl * sun_int * sun_col.z,
+                albedo.x * ndotl * light_col.x,
+                albedo.y * ndotl * light_col.y,
+                albedo.z * ndotl * light_col.z,
             );
+
+            let view_dir = (ray.o - hit.p).normalized();
+            let half_vec = (sun_dir + view_dir).normalized();
+            let n_dot_h = hit.n.dot(half_vec).max(0.0);
+            let shininess = 32.0;
+            let spec_strength = 0.5;
+            let spec = n_dot_h.powf(shininess) * spec_strength;
+            let specular = light_col * spec;
 
             let ambient = albedo * self.daynight.ambient_level(time);
 
-            diffuse + ambient
+            diffuse + specular + ambient
         } else {
             self.background(ray.d, time)
         }

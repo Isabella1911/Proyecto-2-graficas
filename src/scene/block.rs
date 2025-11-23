@@ -1,4 +1,4 @@
-// src/scene/mod.rs
+
 use crate::core::math::Vec3;
 
 

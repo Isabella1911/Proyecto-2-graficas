@@ -1,4 +1,4 @@
-// src/framebuffer.rs
+
 use crate::core::math::Color;
 
 pub struct Framebuffer {

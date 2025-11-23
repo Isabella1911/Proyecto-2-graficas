@@ -36,7 +36,7 @@ impl Vec3 {
     }
 }
 
-// operaciones básicas Vec3 + escalar
+
 use std::ops::{Add, Sub, Mul, Div, Neg};
 
 impl Add for Vec3 {
@@ -94,7 +94,7 @@ impl Neg for Vec3 {
     }
 }
 
-// ---- helpers de color / clamps ----
+
 
 pub type Color = Vec3;
 

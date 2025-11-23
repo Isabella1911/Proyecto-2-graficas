@@ -1,4 +1,4 @@
-// src/core/mod.rs
+
 
 pub mod math;
 pub mod image;
