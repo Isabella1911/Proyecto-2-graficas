@@ -4,6 +4,13 @@ pub mod block;
 pub mod builder;
 
 #[derive(Clone)]
+pub struct TextureCPU {
+    pub width: usize,
+    pub height: usize,
+    pub data: Vec<Vec3>,
+}
+
+#[derive(Clone)]
 pub struct Material {
     pub name: String,
     pub albedo: Vec3,
@@ -13,6 +20,7 @@ pub struct Material {
     pub reflection: f64,
     pub emissive: Vec3,
     pub animated: bool,
+    pub texture: Option<TextureCPU>,
 }
 
 impl Material {
@@ -26,6 +34,7 @@ impl Material {
             reflection: 0.0,
             emissive: Vec3::new(0.0, 0.0, 0.0),
             animated: false,
+            texture: None,
         }
     }
 

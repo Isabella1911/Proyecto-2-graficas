@@ -5,6 +5,7 @@ use crate::core::math::{Vec3, to_u8};
 use crate::framebuffer::Framebuffer;
 use crate::render::renderer::Renderer;
 use crate::scene::builder::build_minecraft_house_scene;
+use crate::scene::{Scene, TextureCPU};
 
 mod app;
 mod core;
@@ -13,8 +14,8 @@ mod scene;
 mod framebuffer;
 
 fn main() {
-    let width: usize = 800;
-    let height: usize = 440;
+    let width: usize = 960;
+    let height: usize = 540;
     let spp: usize = 4;
 
     let (mut rl, thread) = raylib::init()
@@ -27,7 +28,8 @@ fn main() {
     let mut renderer = Renderer::new(width, height, spp);
     renderer.set_use_procedural_sky(true);
 
-    let scene = build_minecraft_house_scene();
+    let mut scene = build_minecraft_house_scene();
+    load_material_textures(&mut scene, &mut rl);
     renderer.set_scene(&scene);
 
     let orbit_center = Vec3::new(8.0, 3.0, 8.0);
@@ -73,6 +75,32 @@ fn main() {
                 let g = to_u8(c.y);
                 let b = to_u8(c.z);
                 d.draw_pixel(x as i32, y as i32, Color::new(r, g, b, 255));
+            }
+        }
+    }
+}
+
+fn load_material_textures(scene: &mut Scene, _rl: &mut RaylibHandle) {
+    for mat in &mut scene.materials {
+        if let Some(path) = mat.texture_path {
+            if let Ok(image) = Image::load_image(path) {
+                let w = image.width() as usize;
+                let h = image.height() as usize;
+                let data = image.get_image_data();
+                let mut pixels = Vec::with_capacity(w * h);
+
+                for c in data.iter() {
+                    let r = c.r as f64 / 255.0;
+                    let g = c.g as f64 / 255.0;
+                    let b = c.b as f64 / 255.0;
+                    pixels.push(Vec3::new(r, g, b));
+                }
+
+                mat.texture = Some(TextureCPU {
+                    width: w,
+                    height: h,
+                    data: pixels,
+                });
             }
         }
     }

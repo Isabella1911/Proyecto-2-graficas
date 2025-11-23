@@ -95,7 +95,17 @@ impl Renderer {
     fn trace_ray(&self, ray: &Ray, scene: &Scene, time: f64) -> Color {
         if let Some(hit) = intersect_voxels(ray, &scene.voxels) {
             let mat = &scene.materials[hit.mat_id];
-            let albedo = mat.albedo;
+
+            let mut albedo = mat.albedo;
+            if let Some(tex) = mat.texture.as_ref() {
+                let (u, v) = compute_uv(&hit, mat.uv_scale);
+                let tex_color = sample_texture(tex, u, v);
+                albedo = Vec3::new(
+                    albedo.x * tex_color.x,
+                    albedo.y * tex_color.y,
+                    albedo.z * tex_color.z,
+                );
+            }
 
             let sun_dir = self.daynight.sun_direction(time);
             let sun_col = self.daynight.sun_color(time);
@@ -232,4 +242,27 @@ fn tone_map(c: Color) -> Color {
     let g = clamp01(c.y);
     let b = clamp01(c.z);
     Color::new(r, g, b)
+}
+
+fn compute_uv(hit: &Hit, uv_scale: f64) -> (f64, f64) {
+    let p = hit.p;
+    let n = hit.n;
+    let (u, v) = if n.x.abs() > 0.5 {
+        (p.z, p.y)
+    } else if n.z.abs() > 0.5 {
+        (p.x, p.y)
+    } else {
+        (p.x, p.z)
+    };
+    let u = u * uv_scale;
+    let v = v * uv_scale;
+    let u = u - u.floor();
+    let v = v - v.floor();
+    (u, v)
+}
+
+fn sample_texture(tex: &crate::scene::TextureCPU, u: f64, v: f64) -> Color {
+    let x = (u * tex.width as f64) as usize % tex.width;
+    let y = (v * tex.height as f64) as usize % tex.height;
+    tex.data[y * tex.width + x]
 }
