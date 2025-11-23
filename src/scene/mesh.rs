@@ -1,4 +1,4 @@
-use crate::core::vec3::Vec3;
+use crate::core::math::Vec3;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 

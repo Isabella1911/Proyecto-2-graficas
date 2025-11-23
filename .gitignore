@@ -43,3 +43,35 @@ Desktop.ini
 *~
 *.tmp
 *.swp
+
+# Carpetas de build comunes
+/build/
+/build-*/
+/cmake-build-*/
+/out/
+/dist/
+/bin/
+/obj/
+
+# Directorios de CMake
+CMakeFiles/
+*/CMakeFiles/
+
+# Archivos de CMake
+CMakeCache.txt
+cmake_install.cmake
+CTestTestfile.cmake
+install_manifest.txt
+Makefile
+CMakeScripts/
+
+# Archivos auxiliares
+compile_commands.json
+CMakeSettings.json
+CMakeUserPresets.json
+CMakePresets.json
+
+# Si tienes un directorio específico de CMake, por ejemplo:
+# /Proyecto-2-graficas/cmake-build-debug/
+# puedes agregarlo también:
+# /cmake-build-debug/

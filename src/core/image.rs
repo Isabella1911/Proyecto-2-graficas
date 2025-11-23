@@ -3,7 +3,7 @@
 use std::fs::File;
 use std::io::{BufWriter, Write};
 
-use crate::core::vec3::Color;
+use crate::core::math::Color;
 
 pub struct Image {
     pub w: usize,
