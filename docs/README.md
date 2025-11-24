@@ -1,5 +1,5 @@
 # Proyecto-2-graficas
-Video: 
+Video: https://youtu.be/4B7ErZqEG9A
 
 Características principales implementadas
 
